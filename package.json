@@ -1,6 +1,6 @@
 {
 	"name": "subscription-tracker",
-	"version": "0.0.0",
+	"version": "0.0.1",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -10,10 +10,14 @@
 	"dependencies": {
 		"cookie-parser": "~1.4.4",
 		"debug": "~2.6.9",
+		"dotenv": "^17.2.3",
 		"express": "^4.21.2",
 		"morgan": "^1.10.1"
 	},
 	"devDependencies": {
+		"@eslint/js": "^9.36.0",
+		"eslint": "^9.36.0",
+		"globals": "^16.4.0",
 		"nodemon": "^3.1.10"
 	}
 }
