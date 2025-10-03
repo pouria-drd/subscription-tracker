@@ -2,6 +2,13 @@ import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
 import { JWT_SECRET } from "../config/env.js";
 
+/**
+ * Middleware to check if the user is authenticated and authorized to access the requested route
+ * @param {*} req - Express request object
+ * @param {*} res - Express response object
+ * @param {*} next - Express next middleware function
+ * @returns {*} - Express response object
+ */
 const authorize = async (req, res, next) => {
 	try {
 		let token;
