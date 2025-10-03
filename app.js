@@ -10,6 +10,7 @@ import subscriptionRoutes from "./routes/subscription.routes.js";
 
 // Middlewares
 import errorMiddleware from "./middlewares/error.middleware.js";
+import arcjetMiddleware from "./middlewares/arcjet.middleware.js";
 
 const app = express();
 
@@ -18,13 +19,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
+// Custom Middlewares
+app.use(errorMiddleware);
+app.use(arcjetMiddleware);
+
 // Routes
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/subscriptions", subscriptionRoutes);
-
-// Error handler (after routes)
-app.use(errorMiddleware);
 
 app.get("/", (req, res) => {
 	res.send("Welcome to Subscription Tracker API");
