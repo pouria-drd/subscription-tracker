@@ -15,8 +15,10 @@ export const signUp = async (req, res, next) => {
 	session.startTransaction();
 
 	try {
+		// Get data from request
 		const { username, email, password } = req.body;
 
+		// Check if all fields are present
 		if (!username || !email || !password) {
 			return res.status(400).json({ message: "All fields are required" });
 		}
@@ -28,7 +30,7 @@ export const signUp = async (req, res, next) => {
 
 		if (existingUser) {
 			const error = new Error("User already exists");
-			error.status = 409;
+			error.statusCode = 409;
 			throw error;
 		}
 
@@ -70,6 +72,72 @@ export const signUp = async (req, res, next) => {
 	}
 };
 
-export const signIn = (req, res, next) => {};
+/**
+ * Sign in a user
+ * @param {Object} req.body
+ * @param {Object} res
+ * @param {Object} next
+ */
+export const signIn = async (req, res, next) => {
+	try {
+		// Get login credentials (could be username or email)
+		const { identifier, password } = req.body;
 
+		// Validate inputs
+		if (!identifier || !password) {
+			return res
+				.status(400)
+				.json({ message: "Username/Email and password are required" });
+		}
+
+		// Find user by username OR email
+		const user = await User.findOne({
+			$or: [{ username: identifier }, { email: identifier }],
+		});
+
+		if (!user) {
+			return res.status(401).json({
+				success: false,
+				message: "Invalid username/email or password",
+			});
+		}
+
+		// Compare password
+		const isPasswordValid = await bcrypt.compare(password, user.password);
+		if (!isPasswordValid) {
+			return res.status(401).json({
+				success: false,
+				message: "Invalid username/email or password",
+			});
+		}
+
+		// Update last login
+		user.lastLogin = new Date();
+		await user.save();
+
+		// Generate token
+		const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
+			expiresIn: JWT_EXPIRES_IN,
+		});
+
+		// Return response
+		res.status(200).json({
+			success: true,
+			message: "Signed in successfully",
+			data: {
+				token,
+				user,
+			},
+		});
+	} catch (error) {
+		next(error);
+	}
+};
+
+/**
+ * Sign out a user
+ * @param {Object} req
+ * @param {Object} res
+ * @param {Object} next
+ */
 export const signOut = (req, res, next) => {};

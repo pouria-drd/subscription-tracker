@@ -1,39 +1,38 @@
 const errorMiddleware = (err, req, res, next) => {
-	try {
-		let error = { ...err };
+	console.error("Error Middleware:", err);
 
-		error.message = error.message;
+	// Use the original error status/message if available
+	const statusCode = err.statusCode || err.status || 500;
+	const message = err.message || "Something went wrong";
 
-		console.log(err);
-
-		// Mongoose bad objectId
-		if (err.name === "CastError") {
-			const message = "Resource not found";
-			error = new Error(message);
-			error.statusCode = 404;
-		}
-
-		// Mongoose duplicate key
-		if (err.code === 11000) {
-			const message = "Duplicate field value entered";
-			error = new Error(message);
-			error.statusCode = 400;
-		}
-
-		// Mongoose validation error
-		if (err.name === "ValidationError") {
-			const message = Object.values(err.errors).map((val) => val.message);
-			error = new Error(message.join(", "));
-			error.statusCode = 400;
-		}
-
-		res.status(error.statusCode || 500).json({
+	// Handle specific Mongoose errors
+	if (err.name === "CastError") {
+		return res.status(404).json({
 			success: false,
-			message: error.message || "Something went wrong",
+			message: "Resource not found",
 		});
-	} catch (error) {
-		next(error);
 	}
+
+	if (err.code === 11000) {
+		return res.status(400).json({
+			success: false,
+			message: "Duplicate field value entered",
+		});
+	}
+
+	if (err.name === "ValidationError") {
+		const messages = Object.values(err.errors).map((val) => val.message);
+		return res.status(400).json({
+			success: false,
+			message: messages.join(", "),
+		});
+	}
+
+	// Default response
+	res.status(statusCode).json({
+		success: false,
+		message,
+	});
 };
 
 export default errorMiddleware;
