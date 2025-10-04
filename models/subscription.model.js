@@ -42,6 +42,7 @@ const subscriptionSchema = new mongoose.Schema(
 				"finance",
 				"career",
 				"other",
+				"entertainment",
 			],
 		},
 		paymentMethod: {
